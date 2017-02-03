@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.ebank.pay.cn/schema/common/process"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+         http://www.ebank.pay.cn/schema/common/process http://schema.ebank.pay.cn:8018/schema/common/process/process-1.0.xsd http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+             default-autowire="byName">
+
+    <job id="loginJob" class="cn.pay.ebank.process.domain.DomainedProcessJob">
+        <beans:description>配置一个任务，由于是处理领域对象，则使用内置的领域处理任务实现</beans:description>
+        <context class="cn.pay.ebank.process.domain.DomainedProcessJobContext">
+            <beans:description>任务的上下文，由于是处理领域对象，则使用内置的领域处理任务实现
+            </beans:description>
+        </context>
+        <exception-handler type="cn.pay.ebank.process.domain.LoginException"
+                           handler="cn.pay.ebank.process.domain.LoginExceptionHandler">
+            <beans:description>当发生登录异常时通过登录异常处理器全局处理</beans:description>
+        </exception-handler>
+
+        <node name="parameterProcess" class="cn.pay.ebank.process.node.RequestParameterProcessNode">
+            <beans:description>请求参数设置到领域对象处理节点</beans:description>
+            <node name="login" class="cn.pay.ebank.process.node.LoginNode">
+                <beans:description>登录处理节点，在这里面选择成功和失败两个分支</beans:description>
+                <node name="select" class="cn.pay.ebank.process.support.SelectNameByParameterNode">
+                    <beans:description>根据loginResult选择分支节点</beans:description>
+                    <beans:property name="expression" value="loginResult"/>
+                    <node name="successConvert" ref="s">
+                        <beans:description>登录成功的分支，转换为成功结果信息</beans:description>
+                    </node>
+                    <node name="failConvert" ref="f">
+                        <beans:description>登录失败的分支，转换为失败结果信息</beans:description>
+                    </node>
+                </node>
+            </node>
+        </node>
+    </job>
+    <beans:bean id="s" class="cn.pay.ebank.process.node.SuccessConvertNode">
+        <beans:constructor-arg value="s"></beans:constructor-arg>
+    </beans:bean>
+    <beans:bean id="f" class="cn.pay.ebank.process.node.FailConvertNode">
+        <beans:constructor-arg value="f"></beans:constructor-arg>
+    </beans:bean>
+
+    <job id="loginJob2" class="cn.pay.ebank.process.domain.DomainedProcessJob">
+        <beans:description>配置一个任务，由于是处理领域对象，则使用内置的领域处理任务实现</beans:description>
+        <context class="cn.pay.ebank.process.domain.DomainedProcessJobContext">
+            <beans:description>任务的上下文，由于是处理领域对象，则使用内置的领域处理任务实现
+            </beans:description>
+        </context>
+        <exception-handler type="cn.pay.ebank.process.domain.LoginException"
+                           handler="cn.pay.ebank.process.domain.LoginExceptionHandler">
+            <beans:description>当发生登录异常时通过登录异常处理器全局处理</beans:description>
+        </exception-handler>
+            <node name="parameterProcess" class="cn.pay.ebank.process.node.RequestParameterProcessNode">
+                <beans:description>请求参数设置到领域对象处理节点</beans:description>
+                <node name="login" child-ref="loginProcess">
+                    <beans:description>引用loginProcess作为子节点</beans:description>
+                </node>
+            </node>
+    </job>
+    <child-node id="loginProcess">
+        <beans:description>处理登录子节点</beans:description>
+        <node name="logins" class="cn.pay.ebank.process.node.LoginNode">
+            <beans:description>登录处理节点，在这里面选择成功和失败两个分支</beans:description>
+            <node name="select" class="cn.pay.ebank.process.support.SelectNameByParameterNode">
+                <beans:description>根据loginResult选择分支节点</beans:description>
+                <beans:property name="expression" value="loginResult"/>
+                <node name="successConvert" class="cn.pay.ebank.process.node.SuccessConvertNode">
+                    <beans:description>登录成功的分支，转换为成功结果信息</beans:description>
+                </node>
+                <node name="failConvert" class="cn.pay.ebank.process.node.FailConvertNode">
+                    <beans:description>登录失败的分支，转换为失败结果信息</beans:description>
+                </node>
+            </node>
+        </node>
+    </child-node>
+    <dynamic-job id="dynamicJob" class="cn.pay.ebank.process.dynamic.DefaultDynamicJob"
+                 context-class="cn.pay.ebank.process.DefaultJobContext" root="dn1"
+                 exception-handler-group="eh1">
+        <dynamic-node-loader
+                class="cn.pay.ebank.process.dynamic.config.xml.XmlClassedDynamicNodeLoader">
+            <beans:property name="configResources">
+                <beans:list>
+                    <beans:bean class="org.springframework.core.io.ClassPathResource">
+                        <beans:constructor-arg
+                                value="/com/yjf/process/config/dynamic-login-domain.xml"/>
+                    </beans:bean>
+                </beans:list>
+            </beans:property>
+            <beans:property name="classpaths">
+                <beans:set>
+                    <beans:value>classpath://
+                    </beans:value>
+                </beans:set>
+            </beans:property>
+            <beans:property name="includepathPatterns">
+                <beans:set>
+                    <beans:value>cn.pay.ebank.process.dynamic.node**
+                    </beans:value>
+                </beans:set>
+            </beans:property>
+        </dynamic-node-loader>
+    </dynamic-job>
+    <!-- <context:annotation-config /> -->
+    <!-- <context:component-scan base-package="com" /> -->
+</beans:beans>

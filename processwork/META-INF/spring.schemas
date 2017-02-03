@@ -1,0 +1,4 @@
+cn/pay/ebank/util/common/api/process/config/process-1.0.xsd=cn/pay/ebank/process/config/process-1.0.xsd
+cn/pay/ebank/util/common/api/process/config/dynamic-process-1.0.xsd=cn/pay/ebank/process/config/dynamic-process-1.0.xsd
+http\://schema.ebank.pay.cn\:8018/schema/common/process/process-1.0.xsd=cn/pay/ebank/process/config/process-1.0.xsd
+http\://schema.ebank.pay.cn\:8018/schema/common/process/dynamic-process-1.0.xsd=cn/pay/ebank/process/config/dynamic-process-1.0.xsd

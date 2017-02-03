@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.ebank.pay.cn/schema/common/dynamic-process"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://www.ebank.pay.cn/schema/common/dynamic-process"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            <![CDATA[
+                用于配置动态加载处理器的命名空间，通过该命名空间可以快捷的配置动态加载处理器。
+            ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="dynamic-node">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+                    配置一个动态任务所拥有并执行的节点，该节点通过parent指定父级节点从而组成树状结构。
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:constructor-arg"/>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:property"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            节点的id，同 springframework 的 bean 的 id 属性。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="class" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定Node的类的二进制名，如果配置了该属性，那么Node实例就是通过该属性的二进制名创建的 。
+                            该属性和 ref 冲突，只能选择其一。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定Node的实例引用，如果配置了该属性，那么Node实例就是通过该属性指定的引用名引用的。
+                            该属性和 class 冲突，只能选择其一。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="parent" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定Node的父级节点，如果不配置则表示为头节点。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="dynamic-exception-handler">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+                    配置一个动态的异常处理器，通过group设置组，并由dynamic-job的exception-handler-group属性引用该组。
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:constructor-arg"/>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:property"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            异常处理器的id，同 springframework 的 bean 的 id 属性。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="group" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定异常处理器所属的组。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="type" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定处理的发生异常的类型，必须是 java.lang.Throwable 的实例。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="handler" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            处理异常的处理器的完全类限定名。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

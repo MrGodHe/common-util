@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.ebank.pay.cn/schema/common/process"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://www.ebank.pay.cn/schema/common/process"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" />
+
+    <xsd:annotation>
+        <xsd:documentation>
+            <![CDATA[
+	            用于配置处理器的命名空间，通过该命名空间可以快捷的配置处理器。
+		    ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+    <xsd:element name="job">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+                    配置一个任务。
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:element minOccurs="0" ref="context"/>
+                <xsd:element minOccurs="0" ref="project-global-params"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="exception-handler"/>
+                </xsd:choice>
+                <xsd:element minOccurs="0" ref="node"/>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            任务的 id ，形式和作用同 springframework 的 bean 的 id 。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="class" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定Job的类的二进制名，必须是 com.yjf.process.Job 的实现，如果配置了该属性，那么Job实例就是通过该属性的二进制名创建的。指定的类必须有构造方法 Constructor(java.lang.String) 。
+                            该属性和 ref 冲突，只能选择其一。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            指定Job的实例引用，如果配置了该属性，那么Job实例就是通过该属性指定的引用名引用的。
+                            该属性和 class 冲突，只能选择其一。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="abstract" type="xsd:boolean">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            如果为 true 则表示该 job 为抽象的不会创建实例。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="init-method" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							在job创建完成后会调用的初始化方法。
+					    ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="description" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							描述信息
+					    ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="node">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					配置一个任务所拥有并执行的节点，节点配置可以是树状结构。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:constructor-arg"/>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:property"/>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="node"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							节点的名称，对应Node类实例的name属性。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="class" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定Job的类的二进制名，如果配置了该属性，那么Job实例就是通过该属性的二进制名创建的 。
+							该属性和 ref 、 child-ref 冲突，只能选择其一。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定Node的实例引用，如果配置了该属性，那么Node实例就是通过该属性指定的引用名引用的。
+							该属性和 class 、 child-ref 冲突，只能选择其一。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="child-ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							如果使用该属性，则表示该节点为引用到一个<child-node>节点，并使用该<child-node>节点的树。该属性和 class 、ref 冲突，只能选择其一。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="description" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							节点描述。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="child-node">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					配置一个可被引用的子节点。该子节点下的第一个<node>则为真实引用的节点，节点配置可以是树状结构。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:element minOccurs="0" ref="node"/>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							节点的名称，对应<node>的child-ref属性的值，被该值引用。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="context">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					指定JobContext的具体实现，该实现必须与Job配套，如果JobContext与Job不兼容，则会出现错误。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute name="class" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定JobContext的类的二进制名，必须是com.yjf.process.JobContext的实现，
+							并且需要存在Constructor(com.yjf.process.SimpleJobContext.NodeWrapper, java.util.Map)构造方法。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="project-global-params">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					指定一个任务上下文的全局参数，引用相同全局参数的Job可以共享这些参数。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute name="ref" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定引用的全局参数的名称/id，类型必须为 java.util.Map 的实现。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="exception-handler">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					为任务指定全局异常处理器。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:constructor-arg"/>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:property"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="type" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定处理的发生异常的类型，必须是 java.lang.Throwable 的实例。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="handler" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							处理异常的处理器的完全类限定名。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="dynamic-job">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					配置一个动态任务。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="dynamic-node-loader"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							动态任务的 id ，形式和作用同 springframework 的 bean 的 id 。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="class" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定Job的类的二进制名，必须是 com.yjf.process.dynamic.DynamicJob 的实现，如果配置了该属性，那么Job实例就是通过该属性的二进制名创建的。指定的类必须有构造方法 Constructor(java.lang.String) 。
+							该属性和 ref 冲突，只能选择其一。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定Job的实例引用，如果配置了该属性，那么Job实例就是通过该属性指定的引用名引用的。
+							该属性和 class 冲突，只能选择其一。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="abstract" type="xsd:boolean">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							如果为 true 则表示该 job 为抽象的不会创建实例。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="root" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定引用由<dynamic-node>配置的动态节点为头节点。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="context-class" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定JobContext的类的二进制名，必须是com.yjf.process.JobContext的实现，
+							并且需要存在Constructor(com.yjf.process.SimpleJobContext.NodeWrapper, java.util.Map)构造方法。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="exception-handler-group" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定引用由<dynamic-exception-handler>配置的动态异常处理器，引用具有与该属性相同值的group值的动态异常处理器。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="project-global-params" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+							指定引用的全局参数的名称/id，类型必须为 java.util.Map 的实现。
+						]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="dynamic-node-loader">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+					动态节点加载器。
+				]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="beans:description" minOccurs="0"/>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:constructor-arg"/>
+                </xsd:choice>
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element ref="beans:property"/>
+                </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="class" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[
+                            动态节点加载器的完全类限定名，必须是com.yjf.process.dynamic.config.DynamicNodeLoader的实现。
+                        ]]>
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
